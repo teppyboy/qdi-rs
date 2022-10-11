@@ -2,14 +2,19 @@ use std::{fs, path::PathBuf, process::Command};
 
 fn main() {
     println!("{}", format!("QuickDependenciesInstaller v{} by tretrauit", env!("CARGO_PKG_VERSION")));
-    let steamworks_redist = PathBuf::from("Steamworks Shared/_CommonRedist");
+    let steamworks_redist = PathBuf::from("./Steamworks Shared/_CommonRedist");
     if !steamworks_redist.is_dir() {
         panic!("Steamworks Shared/_CommonRedist doesn't exist.");
     }
-    let paths = fs::read_dir(steamworks_redist).unwrap();
-
+    let vcredist = steamworks_redist.join("vcredist");
+    let paths = fs::read_dir(vcredist).unwrap();
+    
     for path in paths {
         let redist = path.unwrap().path();
+        println!("Scanning: {}", redist.display());
+        if !redist.is_dir() {
+            continue;
+        }
         let x86 = redist.join("vcredist_x86.exe");
         if x86.is_file() {
             println!("Found: {}", x86.display());
@@ -26,6 +31,5 @@ fn main() {
                 .output()
                 .expect("Failed to start process");
         }
-        println!("Installation finished.");
     }
 }
